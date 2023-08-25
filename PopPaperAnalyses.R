@@ -263,14 +263,22 @@ ggplot(here, aes(x=reorder(Locus, mean.HB), y=mean.HB)) +
   theme(axis.text.x = element_text(angle = 0, vjust = 0.5)) #+ facet_grid(Population~.)
 
 # by pop
-ggplot(here, aes(x=reorder(Locus, mean.HB), y=mean.HB)) + 
+#ggplot(here, aes(x=reorder(Locus, mean.HB), y=mean.HB)) + 
+here %>% mutate(log10valmean = log10(mean.HB),
+                log10ymax = ifelse(mean.HB>1,log10(mean.HB+se.HB),log10(mean.HB-se.HB))
+                )->here1
+hbWrapup %>% mutate(log10valmean = log10(mean.HB),
+                log10ymax = ifelse(mean.HB>1,log10(mean.HB+se.HB),log10(mean.HB-se.HB))
+                )->hbWrapup1
+ggplot(here1, aes(x=reorder(Locus,log10valmean), y=log10valmean)) + 
   geom_bar(stat = "identity", aes(fill = Population), position = "dodge2") + 
   geom_errorbar(stat = "identity",position = "dodge2",
-                aes(ymin = mean.HB, ymax = mean.HB+se.HB)) + 
+                aes(ymin = log10valmean, ymax = log10ymax)) + 
   scale_fill_manual(values = c("#f98e09", "#3b528b", "#5ec962")) +
   #geom_hline(yintercept = 0.5, color="red", size=0.3, linetype='dashed') +
   #geom_hline(yintercept = 2.0, color="red", size=0.3, linetype='dashed') +
+  geom_hline(yintercept = 0.3, color="red", size=0.3, linetype='dashed') +
+  geom_hline(yintercept = -0.3, color="red", size=0.3, linetype='dashed') +
   theme_classic() + 
-  labs(title = "Mean Heterozygote Balance", 
-       subtitle = "by Locus", x = "Locus", y = "Heterozygote Balance") + 
-  theme(axis.text.x = element_text(angle = 0, vjust = 0.5))
+  labs(x = "Locus", y = "Heterozygote Balance") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
